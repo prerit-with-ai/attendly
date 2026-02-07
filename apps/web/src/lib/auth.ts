@@ -19,6 +19,12 @@ export const auth = betterAuth({
         defaultValue: "employee",
         input: false,
       },
+      companyId: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
     },
   },
 });
