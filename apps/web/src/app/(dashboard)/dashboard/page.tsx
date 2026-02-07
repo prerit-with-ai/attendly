@@ -1,38 +1,41 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Clock, CalendarDays, Camera } from "lucide-react";
+import { Users, MapPin, Building2, UserCheck } from "lucide-react";
+import { getDashboardStats } from "@/actions/dashboard";
 
 export const metadata = {
   title: "Dashboard - Attndly",
 };
 
-const stats = [
-  {
-    title: "Total Employees",
-    value: "--",
-    icon: Users,
-    description: "Complete onboarding to see data",
-  },
-  {
-    title: "Present Today",
-    value: "--",
-    icon: Clock,
-    description: "No attendance data yet",
-  },
-  {
-    title: "Pending Leaves",
-    value: "--",
-    icon: CalendarDays,
-    description: "No leave requests",
-  },
-  {
-    title: "Active Cameras",
-    value: "--",
-    icon: Camera,
-    description: "Set up cameras to begin",
-  },
-];
+export default async function DashboardPage() {
+  const stats = await getDashboardStats();
 
-export default function DashboardPage() {
+  const cards = [
+    {
+      title: "Total Employees",
+      value: stats.employeeCount,
+      icon: Users,
+      description: `${stats.activeEmployeeCount} active`,
+    },
+    {
+      title: "Active Employees",
+      value: stats.activeEmployeeCount,
+      icon: UserCheck,
+      description: "Currently active",
+    },
+    {
+      title: "Locations",
+      value: stats.locationCount,
+      icon: MapPin,
+      description: "Office locations",
+    },
+    {
+      title: "Departments",
+      value: stats.departmentCount,
+      icon: Building2,
+      description: "Departments",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -43,7 +46,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {cards.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -63,8 +66,8 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Complete your onboarding to start tracking attendance. Add employees, set up cameras,
-            and enroll faces to begin.
+            Add employees, set up departments and locations, then configure cameras to start
+            tracking attendance with AI.
           </p>
         </CardContent>
       </Card>

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import type { UserRole } from "@attndly/shared";
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +20,10 @@ import { navItems } from "./sidebar-nav-items";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { data: session } = authClient.useSession();
+  const userRole = (session?.user?.role as UserRole) ?? "employee";
 
-  // TODO: Filter by user role once session role is available
-  const visibleItems = navItems;
+  const visibleItems = navItems.filter((item) => item.roles.includes(userRole));
 
   return (
     <Sidebar collapsible="icon">
