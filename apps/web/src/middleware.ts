@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/sign-in", "/sign-up"];
 const authRoutes = ["/sign-in", "/sign-up"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionToken = request.cookies.get("better-auth.session_token");
 
-  const isPublicRoute = publicRoutes.includes(pathname);
   const isAuthRoute = authRoutes.includes(pathname);
-  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isProtectedRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding");
 
   // Authenticated users on auth pages → redirect to dashboard
   if (sessionToken && isAuthRoute) {
@@ -17,7 +15,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Unauthenticated users on protected routes → redirect to sign-in
-  if (!sessionToken && isDashboardRoute) {
+  if (!sessionToken && isProtectedRoute) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
