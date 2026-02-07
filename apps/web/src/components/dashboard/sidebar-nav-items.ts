@@ -6,6 +6,7 @@ import {
   CalendarDays,
   BarChart3,
   MapPin,
+  Building2,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -60,6 +61,12 @@ export const navItems: NavItem[] = [
     href: "/dashboard/locations",
     icon: MapPin,
     roles: ["super_admin"],
+  },
+  {
+    title: "Departments",
+    href: "/dashboard/departments",
+    icon: Building2,
+    roles: ["super_admin", "hr_admin"],
   },
   {
     title: "Settings",
