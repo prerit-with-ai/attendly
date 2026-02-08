@@ -1,13 +1,16 @@
 "use server";
 
 import { db } from "@/db";
-import { employee, location, department, camera } from "@/db/schema";
+import { employee, location, department, camera, attendanceLog } from "@/db/schema";
 import { requireCompany } from "@/lib/auth-server";
-import { eq, and, count } from "drizzle-orm";
+import { eq, and, count, gte } from "drizzle-orm";
 
 export async function getDashboardStats() {
   const session = await requireCompany();
   const companyId = session.user.companyId;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
 
   const [
     [{ employeeCount }],
@@ -16,6 +19,7 @@ export async function getDashboardStats() {
     [{ locationCount }],
     [{ departmentCount }],
     [{ cameraCount }],
+    [{ todayAttendance }],
   ] = await Promise.all([
     db.select({ employeeCount: count() }).from(employee).where(eq(employee.companyId, companyId)),
     db
@@ -32,6 +36,12 @@ export async function getDashboardStats() {
       .from(department)
       .where(eq(department.companyId, companyId)),
     db.select({ cameraCount: count() }).from(camera).where(eq(camera.companyId, companyId)),
+    db
+      .select({ todayAttendance: count() })
+      .from(attendanceLog)
+      .where(
+        and(eq(attendanceLog.companyId, companyId), gte(attendanceLog.capturedAt, todayStart))
+      ),
   ]);
 
   return {
@@ -41,5 +51,6 @@ export async function getDashboardStats() {
     locationCount,
     departmentCount,
     cameraCount,
+    todayAttendance,
   };
 }

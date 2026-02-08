@@ -115,6 +115,90 @@ export async function testCameraConnection(rtspUrl: string) {
   }
 }
 
+export async function startCameraStream(cameraId: string) {
+  const session = await requireCompany();
+  const companyId = session.user.companyId;
+  const faceServiceUrl = process.env.FACE_SERVICE_URL || "http://localhost:8000";
+  const nextjsBaseUrl = process.env.NEXTJS_BASE_URL || "http://localhost:3000";
+
+  // Fetch camera details
+  const [cam] = await db
+    .select({
+      id: camera.id,
+      rtspUrl: camera.rtspUrl,
+      locationId: camera.locationId,
+    })
+    .from(camera)
+    .where(and(eq(camera.id, cameraId), eq(camera.companyId, companyId)));
+
+  if (!cam) {
+    return { error: "Camera not found." };
+  }
+
+  try {
+    const response = await fetch(`${faceServiceUrl}/api/v1/stream/start`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        camera_id: cam.id,
+        rtsp_url: cam.rtspUrl,
+        company_id: companyId,
+        location_id: cam.locationId,
+        callback_url: `${nextjsBaseUrl}/api/attendance/log`,
+        frame_interval: 30,
+      }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      await db
+        .update(camera)
+        .set({ status: "active", lastConnectedAt: new Date(), updatedAt: new Date() })
+        .where(eq(camera.id, cameraId));
+      revalidatePath("/dashboard/cameras");
+    }
+    return { success: data.success, message: data.message };
+  } catch {
+    return { error: "Face recognition service is not running." };
+  }
+}
+
+export async function stopCameraStream(cameraId: string) {
+  const session = await requireCompany();
+  const companyId = session.user.companyId;
+  const faceServiceUrl = process.env.FACE_SERVICE_URL || "http://localhost:8000";
+
+  // Verify camera belongs to company
+  const [cam] = await db
+    .select({ id: camera.id })
+    .from(camera)
+    .where(and(eq(camera.id, cameraId), eq(camera.companyId, companyId)));
+
+  if (!cam) {
+    return { error: "Camera not found." };
+  }
+
+  try {
+    const response = await fetch(`${faceServiceUrl}/api/v1/stream/stop`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ camera_id: cameraId }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      await db
+        .update(camera)
+        .set({ status: "inactive", updatedAt: new Date() })
+        .where(eq(camera.id, cameraId));
+      revalidatePath("/dashboard/cameras");
+    }
+    return { success: data.success, message: data.message };
+  } catch {
+    return { error: "Face recognition service is not running." };
+  }
+}
+
 export async function updateCameraStatus(id: string, status: "active" | "inactive" | "error") {
   const session = await requireCompany();
 

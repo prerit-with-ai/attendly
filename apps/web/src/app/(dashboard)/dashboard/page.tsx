@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MapPin, Building2, UserCheck, ScanFace, Camera } from "lucide-react";
+import { Users, MapPin, Building2, UserCheck, ScanFace, Camera, Clock } from "lucide-react";
 import { getDashboardStats } from "@/actions/dashboard";
 
 export const metadata = {
@@ -15,6 +15,12 @@ export default async function DashboardPage() {
       : 0;
 
   const cards = [
+    {
+      title: "Today's Check-ins",
+      value: stats.todayAttendance,
+      icon: Clock,
+      description: "Attendance events today",
+    },
     {
       title: "Total Employees",
       value: stats.employeeCount,
@@ -44,12 +50,6 @@ export default async function DashboardPage() {
       value: stats.departmentCount,
       icon: Building2,
       description: "Departments",
-    },
-    {
-      title: "Active Employees",
-      value: stats.activeEmployeeCount,
-      icon: UserCheck,
-      description: "Currently active",
     },
   ];
 
