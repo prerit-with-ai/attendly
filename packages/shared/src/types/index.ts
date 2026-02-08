@@ -20,3 +20,5 @@ export interface PaginatedResponse<T> {
   pageSize: number;
   totalPages: number;
 }
+
+export type CameraStatus = "active" | "inactive" | "error";

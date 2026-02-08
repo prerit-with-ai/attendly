@@ -4,12 +4,14 @@ import { company } from "./company";
 import { location } from "./location";
 import { department } from "./department";
 import { employee } from "./employee";
+import { camera } from "./camera";
 
 export const companyRelations = relations(company, ({ many }) => ({
   users: many(user),
   locations: many(location),
   departments: many(department),
   employees: many(employee),
+  cameras: many(camera),
 }));
 
 export const userRelations = relations(user, ({ one }) => ({
@@ -25,6 +27,7 @@ export const locationRelations = relations(location, ({ one, many }) => ({
     references: [company.id],
   }),
   employees: many(employee),
+  cameras: many(camera),
 }));
 
 export const departmentRelations = relations(department, ({ one, many }) => ({
@@ -51,5 +54,16 @@ export const employeeRelations = relations(employee, ({ one }) => ({
   department: one(department, {
     fields: [employee.departmentId],
     references: [department.id],
+  }),
+}));
+
+export const cameraRelations = relations(camera, ({ one }) => ({
+  company: one(company, {
+    fields: [camera.companyId],
+    references: [company.id],
+  }),
+  location: one(location, {
+    fields: [camera.locationId],
+    references: [location.id],
   }),
 }));

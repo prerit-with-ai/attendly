@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, date, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, date, integer, uniqueIndex } from "drizzle-orm/pg-core";
 import { company } from "./company";
 import { location } from "./location";
 import { department } from "./department";
@@ -25,6 +25,8 @@ export const employee = pgTable(
     phone: text("phone"),
     position: text("position"),
     faceEnrolled: boolean("face_enrolled").notNull().default(false),
+    faceEnrolledAt: timestamp("face_enrolled_at"),
+    faceImageCount: integer("face_image_count").notNull().default(0),
     isActive: boolean("is_active").notNull().default(true),
     joinedDate: date("joined_date"),
     createdAt: timestamp("created_at").notNull().defaultNow(),

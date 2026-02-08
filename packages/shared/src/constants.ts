@@ -46,3 +46,7 @@ export const TIMEZONES = [
   { value: "Asia/Tokyo", label: "JST (Asia/Tokyo)" },
   { value: "Australia/Sydney", label: "AEST (Australia/Sydney)" },
 ] as const;
+
+export const CAMERA_STATUSES = ["active", "inactive", "error"] as const;
+export const MAX_FACE_IMAGES = 5;
+export const MIN_FACE_CONFIDENCE = 0.6;

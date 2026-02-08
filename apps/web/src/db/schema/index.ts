@@ -3,4 +3,5 @@ export * from "./auth";
 export * from "./location";
 export * from "./department";
 export * from "./employee";
+export * from "./camera";
 export * from "./relations";
