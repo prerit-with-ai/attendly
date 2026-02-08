@@ -10,6 +10,13 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379"
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # Face recognition settings
+    face_model: str = "Facenet512"
+    face_detector: str = "ssd"
+    storage_path: str = "./storage"
+    max_faces_per_employee: int = 5
+    min_confidence: float = 0.60
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 
