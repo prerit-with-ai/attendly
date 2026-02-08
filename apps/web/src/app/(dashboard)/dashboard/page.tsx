@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MapPin, Building2, UserCheck } from "lucide-react";
+import { Users, MapPin, Building2, UserCheck, ScanFace, Camera } from "lucide-react";
 import { getDashboardStats } from "@/actions/dashboard";
 
 export const metadata = {
@@ -9,6 +9,11 @@ export const metadata = {
 export default async function DashboardPage() {
   const stats = await getDashboardStats();
 
+  const enrolledPercent =
+    stats.employeeCount > 0
+      ? Math.round((stats.enrolledEmployeeCount / stats.employeeCount) * 100)
+      : 0;
+
   const cards = [
     {
       title: "Total Employees",
@@ -17,10 +22,16 @@ export default async function DashboardPage() {
       description: `${stats.activeEmployeeCount} active`,
     },
     {
-      title: "Active Employees",
-      value: stats.activeEmployeeCount,
-      icon: UserCheck,
-      description: "Currently active",
+      title: "Faces Enrolled",
+      value: stats.enrolledEmployeeCount,
+      icon: ScanFace,
+      description: `${enrolledPercent}% of employees`,
+    },
+    {
+      title: "Cameras",
+      value: stats.cameraCount,
+      icon: Camera,
+      description: "CCTV cameras configured",
     },
     {
       title: "Locations",
@@ -34,6 +45,12 @@ export default async function DashboardPage() {
       icon: Building2,
       description: "Departments",
     },
+    {
+      title: "Active Employees",
+      value: stats.activeEmployeeCount,
+      icon: UserCheck,
+      description: "Currently active",
+    },
   ];
 
   return (
@@ -45,7 +62,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
