@@ -50,3 +50,8 @@ export const TIMEZONES = [
 export const CAMERA_STATUSES = ["active", "inactive", "error"] as const;
 export const MAX_FACE_IMAGES = 5;
 export const MIN_FACE_CONFIDENCE = 0.6;
+
+export const ATTENDANCE_TYPES = ["check_in", "check_out"] as const;
+export const ATTENDANCE_SOURCES = ["kiosk", "rtsp", "manual"] as const;
+export const ATTENDANCE_DEDUP_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+export const ATTENDANCE_POLL_INTERVAL_MS = 5 * 1000; // 5 seconds

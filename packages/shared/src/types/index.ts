@@ -22,3 +22,7 @@ export interface PaginatedResponse<T> {
 }
 
 export type CameraStatus = "active" | "inactive" | "error";
+
+export type AttendanceType = "check_in" | "check_out";
+
+export type AttendanceSource = "kiosk" | "rtsp" | "manual";
