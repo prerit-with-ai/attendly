@@ -13,6 +13,7 @@ dependencies = [
     "numpy>=1.26.0",
     "pillow>=10.0.0",
     "python-multipart>=0.0.9",
+    "tf-keras>=2.16.0",
 ]
 
 [dependency-groups]
