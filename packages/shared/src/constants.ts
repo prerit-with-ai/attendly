@@ -1,4 +1,4 @@
-import type { UserRole, CompanySize } from "./types";
+import type { UserRole, CompanySize, LeaveStatus } from "./types";
 
 export const USER_ROLES: Record<UserRole, string> = {
   super_admin: "Super Admin",
@@ -55,3 +55,22 @@ export const ATTENDANCE_TYPES = ["check_in", "check_out"] as const;
 export const ATTENDANCE_SOURCES = ["kiosk", "rtsp", "manual"] as const;
 export const ATTENDANCE_DEDUP_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 export const ATTENDANCE_POLL_INTERVAL_MS = 5 * 1000; // 5 seconds
+
+export const LEAVE_STATUSES: LeaveStatus[] = ["pending", "approved", "rejected", "cancelled"];
+export const LEAVE_STATUS_LABELS: Record<LeaveStatus, string> = {
+  pending: "Pending",
+  approved: "Approved",
+  rejected: "Rejected",
+  cancelled: "Cancelled",
+};
+
+export const NOTIFICATION_TYPES = [
+  "leave_requested",
+  "leave_approved",
+  "leave_rejected",
+  "late_alert",
+  "early_departure",
+  "system",
+] as const;
+
+export const NOTIFICATION_POLL_INTERVAL_MS = 30 * 1000; // 30 seconds

@@ -26,3 +26,13 @@ export type CameraStatus = "active" | "inactive" | "error";
 export type AttendanceType = "check_in" | "check_out";
 
 export type AttendanceSource = "kiosk" | "rtsp" | "manual";
+
+export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
+
+export type NotificationType =
+  | "leave_requested"
+  | "leave_approved"
+  | "leave_rejected"
+  | "late_alert"
+  | "early_departure"
+  | "system";

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, real, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, real, index, boolean, integer } from "drizzle-orm/pg-core";
 import { company } from "./company";
 import { employee } from "./employee";
 import { location } from "./location";
@@ -25,6 +25,11 @@ export const attendanceLog = pgTable(
     type: text("type", { enum: ["check_in", "check_out"] }).notNull(),
     source: text("source", { enum: ["kiosk", "rtsp", "manual"] }).notNull(),
     confidence: real("confidence"),
+    isLate: boolean("is_late").notNull().default(false),
+    lateMinutes: integer("late_minutes"),
+    isEarlyDeparture: boolean("is_early_departure").notNull().default(false),
+    earlyDepartureMinutes: integer("early_departure_minutes"),
+    overtimeMinutes: integer("overtime_minutes"),
     capturedAt: timestamp("captured_at").notNull().defaultNow(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

@@ -2,6 +2,7 @@ import { pgTable, text, timestamp, boolean, date, integer, uniqueIndex } from "d
 import { company } from "./company";
 import { location } from "./location";
 import { department } from "./department";
+import { shift } from "./shift";
 
 export const employee = pgTable(
   "employee",
@@ -16,6 +17,9 @@ export const employee = pgTable(
       .notNull()
       .references(() => location.id, { onDelete: "restrict" }),
     departmentId: text("department_id").references(() => department.id, {
+      onDelete: "set null",
+    }),
+    shiftId: text("shift_id").references(() => shift.id, {
       onDelete: "set null",
     }),
     employeeCode: text("employee_code").notNull(),
