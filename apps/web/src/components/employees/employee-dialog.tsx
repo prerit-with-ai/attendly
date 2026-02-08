@@ -39,6 +39,7 @@ interface EmployeeDialogProps {
   onOpenChange: (open: boolean) => void;
   locations: { id: string; name: string }[];
   departments: { id: string; name: string }[];
+  shifts: { id: string; name: string }[];
   employee?: {
     id: string;
     firstName: string;
@@ -49,6 +50,7 @@ interface EmployeeDialogProps {
     position: string | null;
     locationId: string;
     departmentId: string | null;
+    shiftId: string | null;
     joinedDate: string | null;
     isActive: boolean;
   };
@@ -59,6 +61,7 @@ export function EmployeeDialog({
   onOpenChange,
   locations,
   departments,
+  shifts,
   employee: editEmployee,
 }: EmployeeDialogProps) {
   const [loading, setLoading] = useState(false);
@@ -75,6 +78,7 @@ export function EmployeeDialog({
       position: editEmployee?.position ?? "",
       locationId: editEmployee?.locationId ?? "",
       departmentId: editEmployee?.departmentId ?? null,
+      shiftId: editEmployee?.shiftId ?? null,
       joinedDate: editEmployee?.joinedDate ?? "",
     },
   });
@@ -267,6 +271,37 @@ export function EmployeeDialog({
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="shiftId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Shift <span className="text-muted-foreground">(optional)</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={(v) => field.onChange(v === "__none" ? null : v)}
+                      defaultValue={field.value ?? "__none"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select shift" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="__none">None</SelectItem>
+                        {shifts.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

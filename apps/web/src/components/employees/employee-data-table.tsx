@@ -20,6 +20,7 @@ interface EmployeeDataTableProps {
   totalPages: number;
   locations: { id: string; name: string }[];
   departments: { id: string; name: string }[];
+  shifts: { id: string; name: string }[];
 }
 
 export function EmployeeDataTable({
@@ -30,6 +31,7 @@ export function EmployeeDataTable({
   totalPages,
   locations,
   departments,
+  shifts,
 }: EmployeeDataTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -94,6 +96,7 @@ export function EmployeeDataTable({
         onOpenChange={setDialogOpen}
         locations={locations}
         departments={departments}
+        shifts={shifts}
         employee={editEmployee}
       />
 

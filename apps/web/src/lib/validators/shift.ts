@@ -4,8 +4,8 @@ export const createShiftSchema = z.object({
   name: z.string().min(1, "Name is required"),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-  gracePeriodMinutes: z.coerce.number().min(0).max(120).default(15),
-  isDefault: z.boolean().default(false),
+  gracePeriodMinutes: z.number().min(0).max(120),
+  isDefault: z.boolean(),
 });
 
 export const updateShiftSchema = createShiftSchema.extend({

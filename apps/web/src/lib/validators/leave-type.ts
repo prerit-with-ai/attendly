@@ -2,8 +2,8 @@ import { z } from "zod/v4";
 
 export const createLeaveTypeSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  daysPerYear: z.coerce.number().min(1, "Must be at least 1 day"),
-  isActive: z.boolean().default(true),
+  daysPerYear: z.number().min(1, "Must be at least 1 day"),
+  isActive: z.boolean(),
 });
 
 export const updateLeaveTypeSchema = createLeaveTypeSchema.extend({

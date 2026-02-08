@@ -136,7 +136,13 @@ export function ShiftDialog({ open, onOpenChange, shift: editShift }: ShiftDialo
                 <FormItem>
                   <FormLabel>Grace Period (minutes)</FormLabel>
                   <FormControl>
-                    <Input type="number" min={0} max={120} {...field} />
+                    <Input
+                      type="number"
+                      min={0}
+                      max={120}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

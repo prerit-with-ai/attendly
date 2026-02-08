@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { employee, department, location } from "@/db/schema";
+import { employee, department, location, shift } from "@/db/schema";
 import { requireCompany } from "@/lib/auth-server";
 import {
   createEmployeeSchema,
@@ -65,13 +65,16 @@ export async function getEmployees(params: Record<string, unknown>) {
         joinedDate: employee.joinedDate,
         locationId: employee.locationId,
         departmentId: employee.departmentId,
+        shiftId: employee.shiftId,
         locationName: location.name,
         departmentName: department.name,
+        shiftName: shift.name,
         createdAt: employee.createdAt,
       })
       .from(employee)
       .leftJoin(location, eq(employee.locationId, location.id))
       .leftJoin(department, eq(employee.departmentId, department.id))
+      .leftJoin(shift, eq(employee.shiftId, shift.id))
       .where(where)
       .orderBy(employee.createdAt)
       .limit(pageSize)
@@ -106,6 +109,7 @@ export async function createEmployee(values: unknown) {
       position: parsed.data.position || null,
       locationId: parsed.data.locationId,
       departmentId: parsed.data.departmentId || null,
+      shiftId: parsed.data.shiftId || null,
       joinedDate: parsed.data.joinedDate || null,
     });
   } catch (e: unknown) {
@@ -138,6 +142,7 @@ export async function updateEmployee(values: unknown) {
         position: parsed.data.position || null,
         locationId: parsed.data.locationId,
         departmentId: parsed.data.departmentId || null,
+        shiftId: parsed.data.shiftId || null,
         joinedDate: parsed.data.joinedDate || null,
         isActive: parsed.data.isActive,
         updatedAt: new Date(),

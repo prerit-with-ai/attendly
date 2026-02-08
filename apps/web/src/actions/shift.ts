@@ -79,13 +79,17 @@ export async function deleteShift(id: string) {
   const session = await requireCompany();
   const companyId = session.user.companyId;
 
-  // Unassign employees from this shift first
-  await db
-    .update(employee)
-    .set({ shiftId: null, updatedAt: new Date() })
-    .where(and(eq(employee.shiftId, id), eq(employee.companyId, companyId)));
+  try {
+    // Unassign employees from this shift first
+    await db
+      .update(employee)
+      .set({ shiftId: null, updatedAt: new Date() })
+      .where(and(eq(employee.shiftId, id), eq(employee.companyId, companyId)));
 
-  await db.delete(shift).where(and(eq(shift.id, id), eq(shift.companyId, companyId)));
+    await db.delete(shift).where(and(eq(shift.id, id), eq(shift.companyId, companyId)));
+  } catch {
+    return { error: "Failed to delete shift." };
+  }
 
   revalidatePath("/dashboard/settings");
   return { success: true };

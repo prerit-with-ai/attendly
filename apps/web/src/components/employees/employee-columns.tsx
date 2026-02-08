@@ -25,8 +25,10 @@ export type EmployeeRow = {
   faceEnrolled: boolean;
   locationId: string;
   departmentId: string | null;
+  shiftId: string | null;
   locationName: string | null;
   departmentName: string | null;
+  shiftName: string | null;
   joinedDate: string | null;
   createdAt: Date;
 };

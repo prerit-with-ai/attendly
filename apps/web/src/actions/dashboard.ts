@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/db";
-import { employee, location, department, camera, attendanceLog } from "@/db/schema";
+import { employee, location, department, camera, attendanceLog, leave } from "@/db/schema";
 import { requireCompany } from "@/lib/auth-server";
-import { eq, and, count, gte } from "drizzle-orm";
+import { eq, and, count, gte, lte } from "drizzle-orm";
 
 export async function getDashboardStats() {
   const session = await requireCompany();
@@ -20,6 +20,8 @@ export async function getDashboardStats() {
     [{ departmentCount }],
     [{ cameraCount }],
     [{ todayAttendance }],
+    [{ pendingLeaves }],
+    [{ onLeaveToday }],
   ] = await Promise.all([
     db.select({ employeeCount: count() }).from(employee).where(eq(employee.companyId, companyId)),
     db
@@ -42,6 +44,21 @@ export async function getDashboardStats() {
       .where(
         and(eq(attendanceLog.companyId, companyId), gte(attendanceLog.capturedAt, todayStart))
       ),
+    db
+      .select({ pendingLeaves: count() })
+      .from(leave)
+      .where(and(eq(leave.companyId, companyId), eq(leave.status, "pending"))),
+    db
+      .select({ onLeaveToday: count() })
+      .from(leave)
+      .where(
+        and(
+          eq(leave.companyId, companyId),
+          eq(leave.status, "approved"),
+          lte(leave.startDate, new Date().toISOString().split("T")[0]),
+          gte(leave.endDate, new Date().toISOString().split("T")[0])
+        )
+      ),
   ]);
 
   return {
@@ -52,5 +69,7 @@ export async function getDashboardStats() {
     departmentCount,
     cameraCount,
     todayAttendance,
+    pendingLeaves,
+    onLeaveToday,
   };
 }

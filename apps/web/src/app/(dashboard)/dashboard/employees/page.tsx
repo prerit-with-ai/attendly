@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getEmployees } from "@/actions/employee";
 import { getLocations } from "@/actions/location";
 import { getDepartments } from "@/actions/department";
+import { getShifts } from "@/actions/shift";
 import { EmployeeDataTable } from "@/components/employees/employee-data-table";
 
 export const metadata = {
@@ -14,7 +15,7 @@ interface EmployeesPageProps {
 
 export default async function EmployeesPage({ searchParams }: EmployeesPageProps) {
   const params = await searchParams;
-  const [employeeData, locations, departments] = await Promise.all([
+  const [employeeData, locations, departments, shifts] = await Promise.all([
     getEmployees({
       page: params.page ? Number(params.page) : 1,
       pageSize: 10,
@@ -25,6 +26,7 @@ export default async function EmployeesPage({ searchParams }: EmployeesPageProps
     }),
     getLocations(),
     getDepartments(),
+    getShifts(),
   ]);
 
   return (
@@ -43,6 +45,7 @@ export default async function EmployeesPage({ searchParams }: EmployeesPageProps
           totalPages={employeeData.totalPages}
           locations={locations.map((l) => ({ id: l.id, name: l.name }))}
           departments={departments.map((d) => ({ id: d.id, name: d.name }))}
+          shifts={shifts.map((s) => ({ id: s.id, name: s.name }))}
         />
       </Suspense>
     </div>

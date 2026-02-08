@@ -9,6 +9,7 @@ export const createEmployeeSchema = z.object({
   position: z.string().optional(),
   locationId: z.string().min(1, "Location is required"),
   departmentId: z.string().nullable().optional(),
+  shiftId: z.string().nullable().optional(),
   joinedDate: z.string().optional(),
 });
 

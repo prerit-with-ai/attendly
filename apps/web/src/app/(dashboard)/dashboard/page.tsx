@@ -1,5 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MapPin, Building2, UserCheck, ScanFace, Camera, Clock } from "lucide-react";
+import {
+  Users,
+  MapPin,
+  Building2,
+  ScanFace,
+  Camera,
+  Clock,
+  CalendarDays,
+  CalendarClock,
+} from "lucide-react";
 import { getDashboardStats } from "@/actions/dashboard";
 
 export const metadata = {
@@ -51,6 +60,18 @@ export default async function DashboardPage() {
       icon: Building2,
       description: "Departments",
     },
+    {
+      title: "Pending Leaves",
+      value: stats.pendingLeaves,
+      icon: CalendarClock,
+      description: "Awaiting approval",
+    },
+    {
+      title: "On Leave Today",
+      value: stats.onLeaveToday,
+      icon: CalendarDays,
+      description: "Employees on leave",
+    },
   ];
 
   return (
@@ -62,7 +83,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
