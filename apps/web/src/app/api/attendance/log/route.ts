@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { attendanceLog, employee } from "@/db/schema";
+import { attendanceLog, employee, notification, user, shift } from "@/db/schema";
 import { eq, and, gte } from "drizzle-orm";
 import { ATTENDANCE_DEDUP_WINDOW_MS } from "@attndly/shared";
+import { calculateAttendanceMetrics } from "@/actions/attendance";
 
 export async function POST(request: NextRequest) {
   // Verify internal API secret
@@ -56,15 +57,70 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, duplicate: true });
   }
 
+  // Calculate attendance metrics based on shift
+  const now = new Date();
+  const attendanceType = type || "check_in";
+  const metrics = await calculateAttendanceMetrics(employee_id, now, attendanceType);
+
   await db.insert(attendanceLog).values({
     companyId: company_id,
     employeeId: employee_id,
     cameraId: camera_id || null,
     locationId: location_id,
-    type: type || "check_in",
+    type: attendanceType,
     source: source || "rtsp",
     confidence: confidence || null,
+    isLate: metrics.isLate,
+    lateMinutes: metrics.lateMinutes,
+    isEarlyDeparture: metrics.isEarlyDeparture,
+    earlyDepartureMinutes: metrics.earlyDepartureMinutes,
+    overtimeMinutes: metrics.overtimeMinutes,
   });
+
+  // Create late/early departure notifications
+  if (metrics.isLate && metrics.lateMinutes) {
+    const [empData] = await db
+      .select({ email: employee.email })
+      .from(employee)
+      .where(eq(employee.id, employee_id));
+    if (empData?.email) {
+      const [empUser] = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.email, empData.email));
+      if (empUser) {
+        await db.insert(notification).values({
+          companyId: company_id,
+          userId: empUser.id,
+          type: "late_alert",
+          title: "Late Arrival",
+          message: `You arrived ${metrics.lateMinutes} minutes late today.`,
+        });
+      }
+    }
+  }
+
+  if (metrics.isEarlyDeparture && metrics.earlyDepartureMinutes) {
+    const [empData] = await db
+      .select({ email: employee.email })
+      .from(employee)
+      .where(eq(employee.id, employee_id));
+    if (empData?.email) {
+      const [empUser] = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.email, empData.email));
+      if (empUser) {
+        await db.insert(notification).values({
+          companyId: company_id,
+          userId: empUser.id,
+          type: "early_departure",
+          title: "Early Departure",
+          message: `You left ${metrics.earlyDepartureMinutes} minutes early today.`,
+        });
+      }
+    }
+  }
 
   return NextResponse.json({ success: true, duplicate: false });
 }

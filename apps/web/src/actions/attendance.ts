@@ -1,7 +1,15 @@
 "use server";
 
 import { db } from "@/db";
-import { attendanceLog, employee, location, department } from "@/db/schema";
+import {
+  attendanceLog,
+  employee,
+  location,
+  department,
+  shift,
+  notification,
+  user,
+} from "@/db/schema";
 import { requireCompany } from "@/lib/auth-server";
 import {
   kioskCheckInSchema,
@@ -11,6 +19,118 @@ import {
 import { eq, and, or, ilike, count, desc, gte, lte, countDistinct } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { ATTENDANCE_DEDUP_WINDOW_MS } from "@attndly/shared";
+
+interface AttendanceMetrics {
+  isLate: boolean;
+  lateMinutes: number | null;
+  isEarlyDeparture: boolean;
+  earlyDepartureMinutes: number | null;
+  overtimeMinutes: number | null;
+}
+
+function parseTime(timeStr: string): { hours: number; minutes: number } {
+  const [h, m] = timeStr.split(":").map(Number);
+  return { hours: h, minutes: m };
+}
+
+export async function calculateAttendanceMetrics(
+  employeeId: string,
+  capturedAt: Date,
+  type: string
+): Promise<AttendanceMetrics> {
+  const result: AttendanceMetrics = {
+    isLate: false,
+    lateMinutes: null,
+    isEarlyDeparture: false,
+    earlyDepartureMinutes: null,
+    overtimeMinutes: null,
+  };
+
+  // Get employee's shift
+  const [emp] = await db
+    .select({ shiftId: employee.shiftId, companyId: employee.companyId })
+    .from(employee)
+    .where(eq(employee.id, employeeId));
+
+  if (!emp?.shiftId) return result;
+
+  const [empShift] = await db.select().from(shift).where(eq(shift.id, emp.shiftId));
+
+  if (!empShift) return result;
+
+  const capturedHours = capturedAt.getHours();
+  const capturedMinutes = capturedAt.getMinutes();
+  const capturedTotalMins = capturedHours * 60 + capturedMinutes;
+
+  const shiftStart = parseTime(empShift.startTime);
+  const shiftEnd = parseTime(empShift.endTime);
+  const shiftStartMins = shiftStart.hours * 60 + shiftStart.minutes;
+  const shiftEndMins = shiftEnd.hours * 60 + shiftEnd.minutes;
+  const graceEndMins = shiftStartMins + empShift.gracePeriodMinutes;
+
+  if (type === "check_in") {
+    if (capturedTotalMins > graceEndMins) {
+      result.isLate = true;
+      result.lateMinutes = capturedTotalMins - shiftStartMins;
+    }
+  } else if (type === "check_out") {
+    if (capturedTotalMins < shiftEndMins) {
+      result.isEarlyDeparture = true;
+      result.earlyDepartureMinutes = shiftEndMins - capturedTotalMins;
+    } else if (capturedTotalMins > shiftEndMins) {
+      result.overtimeMinutes = capturedTotalMins - shiftEndMins;
+    }
+  }
+
+  return result;
+}
+
+async function createLateNotification(companyId: string, employeeId: string, lateMinutes: number) {
+  // Find employee's user account by email
+  const [emp] = await db
+    .select({ email: employee.email, firstName: employee.firstName, lastName: employee.lastName })
+    .from(employee)
+    .where(eq(employee.id, employeeId));
+
+  if (!emp?.email) return;
+
+  const [empUser] = await db.select({ id: user.id }).from(user).where(eq(user.email, emp.email));
+
+  if (empUser) {
+    await db.insert(notification).values({
+      companyId,
+      userId: empUser.id,
+      type: "late_alert",
+      title: "Late Arrival",
+      message: `You arrived ${lateMinutes} minutes late today.`,
+    });
+  }
+}
+
+async function createEarlyDepartureNotification(
+  companyId: string,
+  employeeId: string,
+  earlyMinutes: number
+) {
+  const [emp] = await db
+    .select({ email: employee.email })
+    .from(employee)
+    .where(eq(employee.id, employeeId));
+
+  if (!emp?.email) return;
+
+  const [empUser] = await db.select({ id: user.id }).from(user).where(eq(user.email, emp.email));
+
+  if (empUser) {
+    await db.insert(notification).values({
+      companyId,
+      userId: empUser.id,
+      type: "early_departure",
+      title: "Early Departure",
+      message: `You left ${earlyMinutes} minutes early today.`,
+    });
+  }
+}
 
 const FACE_SERVICE_URL = process.env.FACE_SERVICE_URL || "http://localhost:8000";
 
@@ -107,6 +227,10 @@ export async function checkInViaKiosk(formData: FormData) {
     };
   }
 
+  // Calculate attendance metrics based on shift
+  const now = new Date();
+  const metrics = await calculateAttendanceMetrics(emp.id, now, parsed.data.type);
+
   // Create attendance log
   await db.insert(attendanceLog).values({
     companyId,
@@ -115,7 +239,20 @@ export async function checkInViaKiosk(formData: FormData) {
     type: parsed.data.type,
     source: "kiosk",
     confidence: identifyResult.confidence,
+    isLate: metrics.isLate,
+    lateMinutes: metrics.lateMinutes,
+    isEarlyDeparture: metrics.isEarlyDeparture,
+    earlyDepartureMinutes: metrics.earlyDepartureMinutes,
+    overtimeMinutes: metrics.overtimeMinutes,
   });
+
+  // Create notifications for late/early
+  if (metrics.isLate && metrics.lateMinutes) {
+    await createLateNotification(companyId, emp.id, metrics.lateMinutes);
+  }
+  if (metrics.isEarlyDeparture && metrics.earlyDepartureMinutes) {
+    await createEarlyDepartureNotification(companyId, emp.id, metrics.earlyDepartureMinutes);
+  }
 
   revalidatePath("/dashboard/attendance");
   return {
@@ -290,6 +427,11 @@ export async function getAttendanceLogs(params: Record<string, unknown>) {
         type: attendanceLog.type,
         source: attendanceLog.source,
         confidence: attendanceLog.confidence,
+        isLate: attendanceLog.isLate,
+        lateMinutes: attendanceLog.lateMinutes,
+        isEarlyDeparture: attendanceLog.isEarlyDeparture,
+        earlyDepartureMinutes: attendanceLog.earlyDepartureMinutes,
+        overtimeMinutes: attendanceLog.overtimeMinutes,
         capturedAt: attendanceLog.capturedAt,
       })
       .from(attendanceLog)

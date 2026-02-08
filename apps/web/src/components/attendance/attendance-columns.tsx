@@ -16,6 +16,11 @@ export type AttendanceRow = {
   type: string;
   source: string;
   confidence: number | null;
+  isLate: boolean;
+  lateMinutes: number | null;
+  isEarlyDeparture: boolean;
+  earlyDepartureMinutes: number | null;
+  overtimeMinutes: number | null;
   capturedAt: Date;
 };
 
@@ -80,6 +85,36 @@ export const attendanceColumns: ColumnDef<AttendanceRow>[] = [
         {row.original.source}
       </Badge>
     ),
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const badges = [];
+      if (row.original.isLate) {
+        badges.push(
+          <Badge key="late" variant="destructive" className="text-xs">
+            Late {row.original.lateMinutes ? `(${row.original.lateMinutes}m)` : ""}
+          </Badge>
+        );
+      }
+      if (row.original.isEarlyDeparture) {
+        badges.push(
+          <Badge key="early" className="bg-orange-500 text-xs text-white hover:bg-orange-600">
+            Early{" "}
+            {row.original.earlyDepartureMinutes ? `(${row.original.earlyDepartureMinutes}m)` : ""}
+          </Badge>
+        );
+      }
+      if (row.original.overtimeMinutes && row.original.overtimeMinutes > 0) {
+        badges.push(
+          <Badge key="ot" className="bg-green-600 text-xs text-white hover:bg-green-700">
+            OT {row.original.overtimeMinutes}m
+          </Badge>
+        );
+      }
+      return badges.length > 0 ? <div className="flex gap-1">{badges}</div> : "—";
+    },
   },
   {
     accessorKey: "confidence",
