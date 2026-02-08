@@ -92,6 +92,42 @@ def compare_encodings(encoding1: list[float], encoding2: list[float]) -> float:
     return float(dot / (norm_a * norm_b))
 
 
+def identify_face(
+    image_bytes: bytes, enrolled_employees: dict[str, list[list[float]]]
+) -> dict:
+    """Identify a face against ALL enrolled employees for a company.
+    Returns the best matching employee_id and confidence."""
+    try:
+        new_encoding = extract_encoding(image_bytes)
+    except ValueError as e:
+        return {"identified": False, "employee_id": None, "confidence": 0.0, "message": str(e)}
+
+    best_employee_id = None
+    best_confidence = 0.0
+
+    for employee_id, encodings in enrolled_employees.items():
+        for stored in encodings:
+            similarity = compare_encodings(new_encoding, stored)
+            if similarity > best_confidence:
+                best_confidence = similarity
+                best_employee_id = employee_id
+
+    if best_confidence >= settings.min_confidence and best_employee_id:
+        return {
+            "identified": True,
+            "employee_id": best_employee_id,
+            "confidence": round(best_confidence, 4),
+            "message": "Face identified",
+        }
+
+    return {
+        "identified": False,
+        "employee_id": None,
+        "confidence": round(best_confidence, 4),
+        "message": "Face not recognized",
+    }
+
+
 def verify_face(
     image_bytes: bytes, stored_encodings: list[list[float]]
 ) -> dict:

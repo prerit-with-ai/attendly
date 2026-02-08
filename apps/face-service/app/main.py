@@ -10,6 +10,7 @@ from app.api.v1.routes.health import router as health_router
 from app.core.config import settings
 from app.services import storage
 from app.services.face_engine import preload_model
+from app.services.stream_manager import stream_manager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     yield
     # Shutdown
     logger.info("Shutting down face service")
+    stream_manager.stop_all()
 
 
 app = FastAPI(

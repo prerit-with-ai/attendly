@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     max_faces_per_employee: int = 5
     min_confidence: float = 0.60
 
+    # Internal API settings
+    internal_api_secret: str = ""
+    nextjs_base_url: str = "http://localhost:3000"
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 

@@ -70,6 +70,26 @@ def delete_photos(company_id: str, employee_id: str) -> None:
         logger.info("Deleted photos for %s/%s", company_id, employee_id)
 
 
+def load_all_encodings(company_id: str) -> dict[str, list[list[float]]]:
+    """Load all face encodings for a company. Returns dict of employee_id -> encodings."""
+    enc_dir = _encodings_dir() / company_id
+    if not enc_dir.exists():
+        return {}
+    result: dict[str, list[list[float]]] = {}
+    for filepath in enc_dir.glob("*.json"):
+        employee_id = filepath.stem
+        try:
+            with open(filepath) as f:
+                data = json.load(f)
+            encodings = data.get("encodings")
+            if encodings:
+                result[employee_id] = encodings
+        except Exception as e:
+            logger.warning("Failed to load encoding %s: %s", filepath, e)
+    logger.info("Loaded encodings for %d employees in company %s", len(result), company_id)
+    return result
+
+
 def get_photo_count(company_id: str, employee_id: str) -> int:
     """Count how many photos are stored for an employee."""
     photo_dir = _photos_dir() / company_id / employee_id
