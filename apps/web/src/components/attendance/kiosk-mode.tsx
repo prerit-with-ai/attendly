@@ -46,9 +46,6 @@ export function KioskMode({ locations }: KioskModeProps) {
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
       setCameraActive(true);
     } catch {
       setCameraError("Could not access camera. Please ensure camera permissions are granted.");
@@ -66,6 +63,13 @@ export function KioskMode({ locations }: KioskModeProps) {
     }
     setCameraActive(false);
   }, []);
+
+  // Wire the stream to the video element after React renders it
+  useEffect(() => {
+    if (cameraActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [cameraActive]);
 
   useEffect(() => {
     return () => {
@@ -230,7 +234,13 @@ export function KioskMode({ locations }: KioskModeProps) {
           </div>
         ) : (
           <div className="relative">
-            <video ref={videoRef} autoPlay playsInline muted className="w-full" />
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="aspect-video w-full bg-black"
+            />
 
             {/* Result overlay */}
             {state !== "idle" && state !== "capturing" && result && (
