@@ -8,6 +8,12 @@ dependencies = [
     "uvicorn[standard]>=0.34.0",
     "pydantic-settings>=2.7.0",
     "httpx>=0.28.0",
+    "deepface>=0.0.93",
+    "opencv-python-headless>=4.9.0",
+    "numpy>=1.26.0",
+    "pillow>=10.0.0",
+    "python-multipart>=0.0.9",
+    "tf-keras>=2.16.0",
 ]
 
 [dependency-groups]
