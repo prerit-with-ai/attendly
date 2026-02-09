@@ -10,9 +10,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://attndly.com"),
   title: "Attndly - AI-Powered Attendance Tracking",
   description:
     "Smart attendance tracking using existing CCTV cameras and facial recognition. Replace biometric thumb scanners with AI.",
+  openGraph: {
+    title: "Attndly - AI-Powered Attendance Tracking",
+    description:
+      "Turn your existing CCTV cameras into an intelligent attendance system powered by facial recognition AI.",
+    siteName: "Attndly",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Attndly - AI-Powered Attendance Tracking",
+    description:
+      "Turn your existing CCTV cameras into an intelligent attendance system powered by facial recognition AI.",
+  },
 };
 
 export default function RootLayout({
