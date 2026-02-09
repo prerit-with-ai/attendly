@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { getAttendanceOverview, getReportFilterOptions } from "@/actions/report";
 import { ReportsClient } from "@/components/reports/reports-client";
 import { ReportLoading } from "@/components/reports/report-loading";
@@ -24,11 +25,19 @@ export default async function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
-        <p className="text-muted-foreground">
-          Interactive reports with charts, CSV export, and shareable links.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
+          <p className="text-muted-foreground">
+            Interactive reports with charts, CSV export, and shareable links.
+          </p>
+        </div>
+        <Link
+          href="/dashboard/reports/shares"
+          className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+        >
+          Manage Shares
+        </Link>
       </div>
 
       <Suspense fallback={<ReportLoading />}>
