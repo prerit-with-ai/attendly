@@ -1,4 +1,4 @@
-import type { UserRole, CompanySize, LeaveStatus } from "./types";
+import type { UserRole, CompanySize, LeaveStatus, ReportType } from "./types";
 
 export const USER_ROLES: Record<UserRole, string> = {
   super_admin: "Super Admin",
@@ -74,3 +74,19 @@ export const NOTIFICATION_TYPES = [
 ] as const;
 
 export const NOTIFICATION_POLL_INTERVAL_MS = 30 * 1000; // 30 seconds
+
+export const REPORT_TYPES: ReportType[] = [
+  "attendance_overview",
+  "employee_detail",
+  "department_analytics",
+  "leave_analytics",
+  "punctuality_overtime",
+];
+
+export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
+  attendance_overview: "Attendance Overview",
+  employee_detail: "Employee Detail",
+  department_analytics: "Department Analytics",
+  leave_analytics: "Leave Analytics",
+  punctuality_overtime: "Punctuality & Overtime",
+};

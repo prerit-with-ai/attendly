@@ -11,6 +11,7 @@ import { leaveType } from "./leave-type";
 import { leave } from "./leave";
 import { leaveBalance } from "./leave-balance";
 import { notification } from "./notification";
+import { reportShare } from "./report-share";
 
 export const companyRelations = relations(company, ({ many }) => ({
   users: many(user),
@@ -23,6 +24,7 @@ export const companyRelations = relations(company, ({ many }) => ({
   leaveTypes: many(leaveType),
   leaves: many(leave),
   notifications: many(notification),
+  reportShares: many(reportShare),
 }));
 
 export const userRelations = relations(user, ({ one, many }) => ({
@@ -31,6 +33,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
     references: [company.id],
   }),
   notifications: many(notification),
+  reportShares: many(reportShare),
 }));
 
 export const locationRelations = relations(location, ({ one, many }) => ({
@@ -162,6 +165,17 @@ export const notificationRelations = relations(notification, ({ one }) => ({
   }),
   user: one(user, {
     fields: [notification.userId],
+    references: [user.id],
+  }),
+}));
+
+export const reportShareRelations = relations(reportShare, ({ one }) => ({
+  company: one(company, {
+    fields: [reportShare.companyId],
+    references: [company.id],
+  }),
+  createdByUser: one(user, {
+    fields: [reportShare.createdBy],
     references: [user.id],
   }),
 }));

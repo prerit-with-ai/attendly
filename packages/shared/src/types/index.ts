@@ -36,3 +36,10 @@ export type NotificationType =
   | "late_alert"
   | "early_departure"
   | "system";
+
+export type ReportType =
+  | "attendance_overview"
+  | "employee_detail"
+  | "department_analytics"
+  | "leave_analytics"
+  | "punctuality_overtime";
