@@ -157,3 +157,31 @@
     transform: scale(1.1);
   }
 }
+
+@media print {
+  /* Hide non-essential UI during print */
+  .print\:hidden,
+  [data-slot="sidebar"],
+  header,
+  nav {
+    display: none !important;
+  }
+
+  /* Full width for main content */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure charts display properly */
+  [data-slot="chart"] {
+    break-inside: avoid;
+  }
+
+  /* Page breaks between card sections */
+  .space-y-4 > .grid {
+    break-inside: avoid;
+  }
+}

@@ -10,4 +10,5 @@ export * from "./leave-type";
 export * from "./leave";
 export * from "./leave-balance";
 export * from "./notification";
+export * from "./report-share";
 export * from "./relations";
