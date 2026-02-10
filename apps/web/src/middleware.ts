@@ -4,7 +4,9 @@ const authRoutes = ["/sign-in", "/sign-up", "/forgot-password", "/reset-password
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionToken = request.cookies.get("better-auth.session_token");
+  const sessionToken =
+    request.cookies.get("better-auth.session_token") ||
+    request.cookies.get("__Secure-better-auth.session_token");
 
   const isAuthRoute = authRoutes.includes(pathname);
   const isProtectedRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding");
