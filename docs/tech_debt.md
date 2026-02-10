@@ -14,40 +14,30 @@ Track items that need to be addressed before production and pilot deployment.
 
 | #   | Item                                                                  | Priority | Sprint Introduced | Notes                                                                               |
 | --- | --------------------------------------------------------------------- | -------- | ----------------- | ----------------------------------------------------------------------------------- |
-| 1   | Email verification is console-only (no email provider)                | P0       | Sprint 1          | Need Resend/SES integration for real verification emails                            |
 | 2   | Google OAuth credentials not configured                               | P1       | Sprint 1          | Need Google Cloud Console project + OAuth consent screen                            |
-| 3   | No rate limiting on auth endpoints                                    | P0       | Sprint 1          | Add rate limiting to prevent brute force attacks                                    |
 | 4   | No CSRF protection review                                             | P1       | Sprint 1          | Verify BetterAuth CSRF handling is sufficient                                       |
 | 5   | Middleware uses cookie check only (no server-side session validation) | P1       | Sprint 1          | Middleware checks cookie existence, not validity; pages should validate server-side |
-| 6   | No password reset flow                                                | P0       | Sprint 1          | Users cannot recover accounts                                                       |
 | 7   | `BETTER_AUTH_SECRET` must be a strong, rotated secret in production   | P0       | Sprint 1          | Currently a static dev value                                                        |
 
 ## Database & Schema
 
-| #   | Item                                           | Priority | Sprint Introduced | Notes                                                                    |
-| --- | ---------------------------------------------- | -------- | ----------------- | ------------------------------------------------------------------------ |
-| 8   | Role column has no enum constraint at DB level | P2       | Sprint 1          | Drizzle `text` with app-level validation only; consider pgEnum           |
-| 9   | No database migrations workflow                | P0       | Sprint 0          | Using `drizzle-kit push` (fine for dev); need proper migrations for prod |
-| 10  | No database backups configured                 | P0       | Sprint 0          | Need automated backup strategy for production                            |
+| #   | Item                                           | Priority | Sprint Introduced | Notes                                                          |
+| --- | ---------------------------------------------- | -------- | ----------------- | -------------------------------------------------------------- |
+| 8   | Role column has no enum constraint at DB level | P2       | Sprint 1          | Drizzle `text` with app-level validation only; consider pgEnum |
+| 10  | No database backups configured                 | P0       | Sprint 0          | Need automated backup strategy for production                  |
 
 ## Frontend & UX
 
-| #   | Item                                             | Priority | Sprint Introduced | Notes                                                            |
-| --- | ------------------------------------------------ | -------- | ----------------- | ---------------------------------------------------------------- |
-| 11  | Dashboard nav items not filtered by user role    | P1       | Sprint 1          | All nav items shown regardless of role; needs session role check |
-| 12  | No loading states on auth redirects              | P2       | Sprint 1          | Brief flash possible between middleware redirect and page load   |
-| 13  | Landing page footer links are placeholders (`#`) | P1       | Sprint 1          | Privacy, Terms, Contact pages need real content                  |
-| 14  | No error boundary components                     | P1       | Sprint 0          | App crashes show default Next.js error page                      |
-| 15  | No 404 custom page                               | P2       | Sprint 0          | Using default Next.js not-found                                  |
+| #   | Item                                | Priority | Sprint Introduced | Notes                                                          |
+| --- | ----------------------------------- | -------- | ----------------- | -------------------------------------------------------------- |
+| 12  | No loading states on auth redirects | P2       | Sprint 1          | Brief flash possible between middleware redirect and page load |
 
 ## Infrastructure & DevOps
 
 | #   | Item                                      | Priority | Sprint Introduced | Notes                                                                       |
 | --- | ----------------------------------------- | -------- | ----------------- | --------------------------------------------------------------------------- |
 | 16  | No test setup (Vitest/Playwright)         | P1       | Sprint 1          | Deferred per sprint decision; need before production                        |
-| 17  | No CI/CD pipeline                         | P0       | Sprint 0          | Need GitHub Actions for lint, type-check, build, test                       |
 | 18  | No production deployment config           | P0       | Sprint 0          | Need Vercel (web) + Railway/AWS (face-service) setup                        |
-| 19  | No environment variable validation        | P1       | Sprint 0          | App silently fails with missing env vars; need startup validation           |
 | 20  | Next.js 16 middleware deprecation warning | P2       | Sprint 1          | `middleware` convention deprecated in favor of `proxy`; migrate when stable |
 
 ## Performance & Scalability
@@ -61,8 +51,6 @@ Track items that need to be addressed before production and pilot deployment.
 
 | #   | Item                     | Priority | Sprint Introduced | Notes                                                 |
 | --- | ------------------------ | -------- | ----------------- | ----------------------------------------------------- |
-| 23  | No privacy policy        | P0       | —                 | Required before collecting any user/biometric data    |
-| 24  | No terms of service      | P0       | —                 | Required before pilot                                 |
 | 25  | No data retention policy | P0       | —                 | Facial data has legal implications (GDPR, local laws) |
 | 26  | No audit logging         | P1       | —                 | Need to track who accessed what data and when         |
 
@@ -70,6 +58,17 @@ Track items that need to be addressed before production and pilot deployment.
 
 ## Resolved
 
-| #   | Item | Resolved In | Resolution |
-| --- | ---- | ----------- | ---------- |
-| —   | —    | —           | —          |
+| #   | Item                                             | Resolved In | Resolution                                           |
+| --- | ------------------------------------------------ | ----------- | ---------------------------------------------------- |
+| 1   | Email verification is console-only               | Sprint 7    | Resend integration with console fallback             |
+| 3   | No rate limiting on auth endpoints               | Sprint 7    | Upstash Ratelimit on sign-in/sign-up/password reset  |
+| 6   | No password reset flow                           | Sprint 7    | BetterAuth + Resend forgot/reset password flow       |
+| 9   | No database migrations workflow                  | Sprint 7    | drizzle-kit generate/migrate scripts                 |
+| 11  | Dashboard nav items not filtered by user role    | Sprint 2    | app-sidebar.tsx filters nav items by session role    |
+| 13  | Landing page footer links are placeholders (`#`) | Sprint 7    | Linked to /privacy, /terms, mailto:support           |
+| 14  | No error boundary components                     | Sprint 7    | error.tsx + global-error.tsx with Sentry integration |
+| 15  | No 404 custom page                               | Sprint 7    | Custom not-found.tsx with Attndly branding           |
+| 17  | No CI/CD pipeline                                | Sprint 0    | .github/workflows/ci.yml                             |
+| 19  | No environment variable validation               | Sprint 7    | Zod env schema in lib/env.ts with typed exports      |
+| 23  | No privacy policy                                | Sprint 7    | /privacy page with comprehensive content             |
+| 24  | No terms of service                              | Sprint 7    | /terms page with comprehensive content               |

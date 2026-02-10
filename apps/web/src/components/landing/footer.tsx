@@ -27,15 +27,15 @@ export function LandingFooter() {
           </div>
 
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link href="#" className="hover:text-foreground">
+            <Link href="/privacy" className="hover:text-foreground">
               Privacy
             </Link>
-            <Link href="#" className="hover:text-foreground">
+            <Link href="/terms" className="hover:text-foreground">
               Terms
             </Link>
-            <Link href="#" className="hover:text-foreground">
+            <a href="mailto:support@attndly.com" className="hover:text-foreground">
               Contact
-            </Link>
+            </a>
           </div>
 
           <p className="text-sm text-muted-foreground">
